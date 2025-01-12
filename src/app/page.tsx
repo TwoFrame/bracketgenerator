@@ -18,7 +18,7 @@ import "@xyflow/react/dist/style.css";
 import RoundLabelNode from "./RoundLabelNode";
 import BracketNode from "./BracketNode";
 
-import FinalSerializedBrackets from "./WIPSerializedBrackets.json";
+import FinalSerializedBrackets from "./SerializedBrackets.json";
 
 const nodeTypes = {
   roundLabelNode: RoundLabelNode,
