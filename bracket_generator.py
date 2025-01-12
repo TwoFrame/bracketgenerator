@@ -403,5 +403,5 @@ def bracketToJSON(entrants: int):
 for i in range(2,129):
     finalJSON[str(i)] = bracketToJSON(i)
 
-with open(f'reactflowtest/src/app/WIPSerializedBrackets.json', 'w') as fp:
+with open(f'src/app/SerializedBrackets.json', 'w') as fp:
     json.dump(finalJSON, fp)  

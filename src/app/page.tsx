@@ -18,35 +18,19 @@ import "@xyflow/react/dist/style.css";
 import RoundLabelNode from "./RoundLabelNode";
 import BracketNode from "./BracketNode";
 
-import FinalSerializedBrackets from "./SerializedBrackets.json";
-import WIPSerializedBrackets from "./WIPSerializedBrackets.json";
+import FinalSerializedBrackets from "./WIPSerializedBrackets.json";
 
 const nodeTypes = {
   roundLabelNode: RoundLabelNode,
   bracketNode: BracketNode,
 };
 
-
-const Brackets: {
-  [key: string]: {
-    nodes: {
-      id: string;
-      type: string;
-      position: { x: number; y: number };
-      data: Record<string, unknown>;
-    }[];
-    edges: {
-      id: string;
-      source: string;
-      target: string;
-    }[];
-  };
-} = WIPSerializedBrackets;
+const Brackets: any = FinalSerializedBrackets;
 
 
 export default function Landing() {
   
-  const [bracketKey, setBracketKey] = useState("4");
+  const [bracketKey, setBracketKey] = useState("2");
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
     Brackets[bracketKey].nodes || [],
