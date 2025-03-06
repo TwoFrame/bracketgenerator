@@ -1,7 +1,6 @@
 import math
 import json
 from collections import deque, defaultdict
-from enum import Enum
 
 NODE_GAP = 22
 LABEL_HEIGHT = 24
@@ -47,7 +46,7 @@ def bracketToJSON(entrants: int):
         elif r == totalRounds - 1:
             label = "Winners Finals"
         elif r == totalRounds - 2:
-            label = "Winners Seminfinals"
+            label = "Winners Semifinals"
         else:
             label = f'Winners Round {r}'
 
@@ -67,6 +66,8 @@ def bracketToJSON(entrants: int):
                         'data': {'roundLabel': "Grand Finals", 'bracketNodeType': 'end'}
                     })
     
+
+    #BFS to generate winners bracket from grand finals node (in this case would be root node of binary tree)
     nodeIDTracker = [0]* totalRounds
     q = deque([(totalRounds-1, (1,2), (startUpperBound, startLowerBound))])
     
@@ -102,8 +103,10 @@ def bracketToJSON(entrants: int):
         parentNodeID = nodeIDTracker[currentRound]//2
         data["edges"].append({
             'id': f'eWR{currentRound}N{nodeIDTracker[currentRound]}-WR{currentRound+1}N{parentNodeID}',
+            'type': 'smoothstep',
             'source': f'WR{currentRound}N{nodeIDTracker[currentRound]}',
-            'target': f'WR{currentRound+1}N{parentNodeID}'
+            'target': f'WR{currentRound+1}N{parentNodeID}',
+            'style' : { 'strokeDasharray': '5 5' }
         })
         
         nodeIDTracker[currentRound] += 1
@@ -148,7 +151,7 @@ def bracketToJSON(entrants: int):
                     'id': f'LR1N{i}',
                     'type': "bracketNode",
                     'position': {'x': 0, 'y': losersYCoordBase +LABEL_HEIGHT + NODE_GAP + (STANDARD_HEIGHT + NODE_GAP)*i  },
-                    'data' : {'bracketNodeType': 'start', 'winnerSourceTop': f'{node1['id']}', 'winnerSourceBottom': f'{node2['id']}'}
+                    'data' : {'bracketNodeType': 'start', 'winnerSourceTop': f"{node1['id']}", 'winnerSourceBottom': f"{node2['id']}"}
                 })
                 data["nodes"].append({
                     'id': f'LR2N{i}',
@@ -159,15 +162,17 @@ def bracketToJSON(entrants: int):
                 
                 data["edges"].append({
                     'id': f'eLR1N{i}-LR2N{i}',
+                    'type': 'smoothstep',
                     'source': f'LR1N{i}',
-                    'target': f'LR2N{i}'
+                    'target': f'LR2N{i}',
+                    'style' :  { 'strokeDasharray': '5 5' }
                 })
             else:
                 bottom = ""
                 if 'highSeed' in node1["data"] and 'lowSeed' not in node1["data"]:
-                    bottom = f'{node2['id']}'
+                    bottom = f"{node2['id']}"
                 else:
-                    bottom = f'{node1['id']}'
+                    bottom = f"{node1['id']}"
 
                 data["nodes"].append({
                     'id': f'LR2N{i}',
@@ -195,14 +200,18 @@ def bracketToJSON(entrants: int):
                 
                 data["edges"].append({
                     'id': f'eLR2N{i*2}-LR3{i}',
+                    'type': 'smoothstep',
                     'source': f'LR2N{i*2}',
                     'target': f'LR3N{i}',
+                    'style' :  { 'strokeDasharray': '5 5' }
                 })
                 
                 data["edges"].append({
                     'id': f'eLR2N{i*2 + 1}-LR3{i}',
+                    'type': 'smoothstep',
                     'source': f'LR2N{i*2 + 1}',
                     'target': f'LR3N{i}',
+                    'style' :  { 'strokeDasharray': '5 5' }
                 })
     else:
         for i in range(int(len(currNodes)/4)):
@@ -220,6 +229,7 @@ def bracketToJSON(entrants: int):
                         'position': {'x': HORIZONTAL_SPACING, 'y': (t+b)/2 },
                         'data' : {'bracketNodeType': "start", 'winnerSourceTop': f'WR2N{int(nextPower/4 - (i*2) - 1)}', 'winnerSourceBottom': f'WR2N{int(nextPower/4 - (i*2+1) - 1)}'}
                 })
+            
             elif not p1BothByes and p2BothByes:
                 data["nodes"].append({
                         'id': f'LR1N{(i*2)}',
@@ -237,8 +247,10 @@ def bracketToJSON(entrants: int):
 
                 data["edges"].append({
                         'id': f'eLR1N{(i*2)}-LR2N{(i*2)}',
+                        'type': 'smoothstep',
                         'source': f'LR1N{(i*2)}',
-                        'target': f'LR2N{(i*2)}'
+                        'target': f'LR2N{(i*2)}',
+                        'style' :  { 'strokeDasharray': '5 5' }
                 })
                 
             else:
@@ -258,14 +270,18 @@ def bracketToJSON(entrants: int):
 
                 data["edges"].append({
                         'id': f'eLR1N{(i*2)}-LR2N{i}',
+                        'type': 'smoothstep',
                         'source': f"LR1N{(i*2)}",
                         'target': f'LR2N{i}',
+                        'style' :  { 'strokeDasharray': '5 5' }
                 })
 
                 data["edges"].append({
                         'id': f'eLR1N{(i*2 + 1)}-LR2N{i}',
+                        'type': 'smoothstep',
                         'source': f"LR1N{(i*2 + 1)}",
                         'target': f'LR2N{i}',
+                        'style' :  { 'strokeDasharray': '5 5' }
                 })
 
                 data["nodes"].append({
@@ -331,9 +347,11 @@ def bracketToJSON(entrants: int):
                     })
                     
                     data["edges"].append({
-                        'id': f'e{prevNode['id']}-LR{currRound}N{i}',
-                        'source': f'{prevNode['id']}',
+                        'id': f"e{prevNode['id']}-LR{currRound}N{i}",
+                        'type': 'smoothstep',
+                        'source': f"{prevNode['id']}",
                         'target': f'LR{currRound}N{i}',
+                        'style' :  { 'strokeDasharray': '5 5' }
                     })
                 associatedWinnerRound +=1
                 populationType = (populationType + 1) % 4
@@ -351,15 +369,19 @@ def bracketToJSON(entrants: int):
                     })
 
                     data["edges"].append({
-                        'id': f'e{node1['id']}-LR{currRound}N{i}',
-                        'source': f'{node1['id']}',
+                        'id': f"e{node1['id']}-LR{currRound}N{i}",
+                        'type': 'smoothstep',
+                        'source': f"{node1['id']}",
                         'target': f'LR{currRound}N{i}',
+                        'style' : { 'strokeDasharray': '5 5' }
                     })
 
                     data["edges"].append({
-                        'id': f'e{node2['id']}-LR{currRound}N{i}',
-                        'source': f'{node2['id']}',
+                        'id': f"e{node2['id']}-LR{currRound}N{i}",
+                        'type': 'smoothstep',
+                        'source': f"{node2['id']}",
                         'target': f'LR{currRound}N{i}',
+                        'style' : { 'strokeDasharray': '5 5' }
                     })
             
             connection = 1 - connection
@@ -380,8 +402,28 @@ def bracketToJSON(entrants: int):
                         'id': f'LR1N0',
                         'type': 'bracketNode',
                         'position': { 'x': 0 ,'y':losersYCoordBase + LABEL_HEIGHT +NODE_GAP},
-                        'data' : {'bracketNodeType': "end", "winnerSourceTop": "WR2N0", "winnerSourceBottom": "WR1N0"}
+                        'data' : {"winnerSourceTop": "WR2N0", "winnerSourceBottom": "WR1N0"}
         })
+
+
+    #lastly... add a lone, true finals column
+    data["nodes"].append({
+                        'id': f'LABEL-TF',
+                        'type': 'roundLabelNode',
+                        'position': { 'x': (totalRounds)*HORIZONTAL_SPACING, 'y': 0 }, 
+                        'data': {'roundLabel': "True Finals", }
+                    })
+
+    data["nodes"].append({
+                        'id': f'WR{totalRounds+1}N0',
+                        'type': 'bracketNode',
+                        'position': { 'x': (totalRounds)*HORIZONTAL_SPACING, 'y': (startLowerBound + startUpperBound)/2}, 
+                        'data': {'roundLabel': "True Finals"}
+                    })
+    
+    
+    
+    data["size"] = str(entrants)
     
 
 
