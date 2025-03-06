@@ -5,7 +5,7 @@
 ## Description
 
 
-Run `node install` then`npm run dev`, then visit `localhost:3000`.
+Run `npm install` then`npm run dev`, then visit `localhost:3000`.
 This is a simple site that displays double elimination brackets using [reactflow](https://reactflow.dev/)
 
 `bracket_generator.py` is the script for generating the nodes, and edges for an N sized bracket, where 2 <= N <= 128.
